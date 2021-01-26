@@ -41,6 +41,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/node", "npm:14.14.22"],
             ["commander", "npm:6.2.1"],
             ["json-schema", "npm:0.3.0"],
+            ["jsonpointer", "npm:4.1.0"],
             ["prettier", "npm:2.2.1"],
             ["rimraf", "npm:3.0.2"],
             ["typescript", "patch:typescript@npm%3A4.1.3#builtin<compat/typescript>::version=4.1.3&hash=cc6730"]
@@ -166,11 +167,21 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/node", "npm:14.14.22"],
             ["commander", "npm:6.2.1"],
             ["json-schema", "npm:0.3.0"],
+            ["jsonpointer", "npm:4.1.0"],
             ["prettier", "npm:2.2.1"],
             ["rimraf", "npm:3.0.2"],
             ["typescript", "patch:typescript@npm%3A4.1.3#builtin<compat/typescript>::version=4.1.3&hash=cc6730"]
           ],
           "linkType": "SOFT",
+        }]
+      ]],
+      ["jsonpointer", [
+        ["npm:4.1.0", {
+          "packageLocation": "./.yarn/cache/jsonpointer-npm-4.1.0-212fb6b677-90724d8a84.zip/node_modules/jsonpointer/",
+          "packageDependencies": [
+            ["jsonpointer", "npm:4.1.0"]
+          ],
+          "linkType": "HARD",
         }]
       ]],
       ["minimatch", [

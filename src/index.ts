@@ -2,6 +2,7 @@
 import prettier from "prettier";
 import fs from "fs";
 import { program } from "commander";
+import jsonpointer from "jsonpointer";
 import { JSONSchema7, JSONSchema7Definition } from "json-schema";
 
 function assert(message, assertion) {
@@ -9,6 +10,18 @@ function assert(message, assertion) {
   if (typeof assertion === "function") output = assertion();
   else if (typeof assertion === "boolean") output = assertion;
   if (!output) throw new Error(`Failed: '${message}'`);
+}
+
+function resolveRef(
+  schemas: JSONSchema7[],
+  rootSchema: JSONSchema7,
+  ref: string
+): JSONSchema7 {
+  if (ref.startsWith("#/")) {
+    return jsonpointer.get(rootSchema, ref.replace("#/", "/"));
+  } else {
+    throw new Error(`Not supporting external refs yet`);
+  }
 }
 
 function generateTypeName(schema: JSONSchema7): string {
@@ -23,6 +36,12 @@ function generateTypeInfo(
   rootSchema: JSONSchema7,
   schema: JSONSchema7
 ) {
+  if (schema.$ref)
+    return generateTypeInfo(
+      schemas,
+      rootSchema,
+      resolveRef(schemas, rootSchema, schema.$ref)
+    );
   switch (schema.type) {
     case "object":
       return `{${generateProperties(schemas, rootSchema, schema)}}`;
@@ -53,7 +72,7 @@ function generateTypeInfo(
         )}[]`;
     }
     default:
-      throw new Error(`Unsupported type ${schema.type}`);
+      throw new Error(`Unsupported schema '${JSON.stringify(schema)}'`);
   }
 }
 

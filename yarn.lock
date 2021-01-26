@@ -96,6 +96,7 @@ __metadata:
     "@types/node": ^14.14.22
     commander: ^6.2.0
     json-schema: ^0.3.0
+    jsonpointer: ^4.1.0
     prettier: ^2.2.1
     rimraf: ^3.0.2
     typescript: ^4.1.3
@@ -106,6 +107,13 @@ __metadata:
   version: 0.3.0
   resolution: "json-schema@npm:0.3.0"
   checksum: 1d0895cca1b01e3a290de6b7cae5d5cf7bb2764f6a032bc85f0bc0dd50d1820c0d8bd71159ba921e4c1c6e47f909b5d2308f6bbbf191e1b47ac7b6adc526fb5b
+  languageName: node
+  linkType: hard
+
+"jsonpointer@npm:^4.1.0":
+  version: 4.1.0
+  resolution: "jsonpointer@npm:4.1.0"
+  checksum: 90724d8a84ce4493980f474c59298a8c39b379e8163c648408a53143baf7f3818189102c45d860905447da2ff79c9152bbda58d1339c5564b1bb8748e3adbb81
   languageName: node
   linkType: hard
 
