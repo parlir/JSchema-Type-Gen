@@ -24,7 +24,12 @@ function generateProperties(schemas: JSONSchema7[], schema: JSONSchema7) {
   );
   const properties = schema.properties ?? {};
   return Object.keys(properties)
-    .map((name) => `${name}: ${(properties[name] as JSONSchema7)?.type};`)
+    .map(
+      (name) =>
+        `${name}${!schema.required?.includes(name) ? "?" : ""}: ${
+          (properties[name] as JSONSchema7)?.type
+        };`
+    )
     .join("");
 }
 
