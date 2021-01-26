@@ -18,10 +18,14 @@ function generateTypeName(schema: JSONSchema7): string {
 }
 
 // Include the type info but without the top level wrappers
-function generateTypeInfo(schemas: JSONSchema7[], schema: JSONSchema7) {
+function generateTypeInfo(
+  schemas: JSONSchema7[],
+  rootSchema: JSONSchema7,
+  schema: JSONSchema7
+) {
   switch (schema.type) {
     case "object":
-      return `{${generateProperties(schemas, schema)}}`;
+      return `{${generateProperties(schemas, rootSchema, schema)}}`;
     case "number":
     case "integer":
       return "number";
@@ -39,17 +43,25 @@ function generateTypeInfo(schemas: JSONSchema7[], schema: JSONSchema7) {
         return "any[]";
       else if (Array.isArray(schema.items))
         return `[${schema.items
-          .map((i) => generateTypeInfo(schemas, i as JSONSchema7))
+          .map((i) => generateTypeInfo(schemas, rootSchema, i as JSONSchema7))
           .join(",")}]`;
       else if (typeof schema.items === "object")
-        return `${generateTypeInfo(schemas, schema.items as JSONSchema7)}[]`;
+        return `${generateTypeInfo(
+          schemas,
+          rootSchema,
+          schema.items as JSONSchema7
+        )}[]`;
     }
     default:
       throw new Error(`Unsupported type ${schema.type}`);
   }
 }
 
-function generateProperties(schemas: JSONSchema7[], schema: JSONSchema7) {
+function generateProperties(
+  schemas: JSONSchema7[],
+  rootSchema: JSONSchema7,
+  schema: JSONSchema7
+) {
   assert(
     "Can only generate properties on object types",
     schema.type === "object"
@@ -60,12 +72,18 @@ function generateProperties(schemas: JSONSchema7[], schema: JSONSchema7) {
       (name) =>
         `${name}${
           !schema.required?.includes(name) ? "?" : ""
-        }: ${generateTypeInfo(schemas, properties[name] as JSONSchema7)};`
+        }: ${generateTypeInfo(
+          schemas,
+          rootSchema,
+          properties[name] as JSONSchema7
+        )};`
     )
     .join("");
 }
 
-const schemaToType = (schemas: JSONSchema7[]) => (
+const schemaToType = (
+  schemas: JSONSchema7[],
+  rootSchema: JSONSchema7,
   schema: JSONSchema7
 ): string => {
   const typeName = generateTypeName(schema);
@@ -73,6 +91,7 @@ const schemaToType = (schemas: JSONSchema7[]) => (
     case "object":
       return `export interface ${typeName} ${generateTypeInfo(
         schemas,
+        rootSchema,
         schema
       )};`;
     case "number":
@@ -81,7 +100,11 @@ const schemaToType = (schemas: JSONSchema7[]) => (
     case "boolean":
     case "null":
     case "array":
-      return `export type ${typeName} = ${generateTypeInfo(schemas, schema)}`;
+      return `export type ${typeName} = ${generateTypeInfo(
+        schemas,
+        rootSchema,
+        schema
+      )}`;
     default:
       throw new Error(`Unsupported type ${schema.type}`);
   }
@@ -99,7 +122,9 @@ async function main() {
       );
 
       const types = prettier.format(
-        schemas.map(schemaToType(schemas)).join("\n"),
+        schemas
+          .map((schema) => schemaToType(schemas, schema, schema))
+          .join("\n"),
         { cursorOffset: 2, parser: "typescript" }
       );
 
