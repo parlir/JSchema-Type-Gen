@@ -1,0 +1,25 @@
+{
+  "name": "json-schema-generator",
+  "version": "0.0.1",
+  "description": "JSON schema type generation",
+  "main": "src/index.ts",
+  "license": "MIT",
+  "scripts": {
+    "prepare": "yarn run clean && yarn run build",
+    "prepack": "yarn prepare",
+    "clean": "rimraf lib",
+    "build": "tsc",
+    "watch": "tsc --watch"
+  },
+  "dependencies": {
+    "@types/json-schema": "^7.0.7",
+    "commander": "^6.2.0",
+    "json-schema": "^0.3.0",
+    "prettier": "^2.2.1"
+  },
+  "devDependencies": {
+    "@types/node": "^14.14.22",
+    "rimraf": "^3.0.2",
+    "typescript": "^4.1.3"
+  }
+}
