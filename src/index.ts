@@ -44,6 +44,9 @@ function generateTypeInfo(
   schema: JSONSchema7
 ) {
   if (schema.$ref) return resolveRef(schemas, rootSchema, schema.$ref);
+
+  if (schema.enum) return schema.enum.map((e) => JSON.stringify(e)).join("|");
+
   switch (schema.type) {
     case "object":
       return `{${generateProperties(schemas, rootSchema, schema)}}`;

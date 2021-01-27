@@ -8,6 +8,14 @@
       "type": "string",
       "description": "The person's first name."
     },
+    "from0to5": {
+      "type": "string",
+      "enum": [0, 1, 2, 3, 4, 5]
+    },
+    "title": {
+      "type": "string",
+      "enum": ["mr", "mrs", "ms"]
+    },
     "geography": {
       "$ref": "#https://example.com/geographical-location.schema.json"
     },
