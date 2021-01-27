@@ -14,14 +14,20 @@ function assert(message, assertion) {
 }
 
 function resolveRef(
-  schemas: JSONSchema7[],
+  schemas: Map<string, JSONSchema7>,
   rootSchema: JSONSchema7,
   ref: string
-): JSONSchema7 {
+): string {
   if (ref.startsWith("#/")) {
-    return jsonpointer.get(rootSchema, ref.replace("#/", "/"));
+    return generateTypeInfo(
+      schemas,
+      rootSchema,
+      jsonpointer.get(rootSchema, ref.replace("#/", "/"))
+    );
   } else {
-    throw new Error(`Not supporting external refs yet`);
+    const schema = schemas.get(ref.slice(1));
+    if (!schema) throw new Error(`Could not resolve ref ${ref}`);
+    return generateTypeName(schema);
   }
 }
 
@@ -33,16 +39,11 @@ function generateTypeName(schema: JSONSchema7): string {
 
 // Include the type info but without the top level wrappers
 function generateTypeInfo(
-  schemas: JSONSchema7[],
+  schemas: Map<string, JSONSchema7>,
   rootSchema: JSONSchema7,
   schema: JSONSchema7
 ) {
-  if (schema.$ref)
-    return generateTypeInfo(
-      schemas,
-      rootSchema,
-      resolveRef(schemas, rootSchema, schema.$ref)
-    );
+  if (schema.$ref) return resolveRef(schemas, rootSchema, schema.$ref);
   switch (schema.type) {
     case "object":
       return `{${generateProperties(schemas, rootSchema, schema)}}`;
@@ -78,7 +79,7 @@ function generateTypeInfo(
 }
 
 function generateProperties(
-  schemas: JSONSchema7[],
+  schemas: Map<string, JSONSchema7>,
   rootSchema: JSONSchema7,
   schema: JSONSchema7
 ) {
@@ -102,7 +103,7 @@ function generateProperties(
 }
 
 const schemaToType = (
-  schemas: JSONSchema7[],
+  schemas: Map<string, JSONSchema7>,
   rootSchema: JSONSchema7,
   schema: JSONSchema7
 ): string => {
@@ -156,9 +157,17 @@ async function main() {
         (path) => JSON.parse(fs.readFileSync(path, "utf8")) as JSONSchema7
       );
 
+      const schemaMap: Map<string, JSONSchema7> = schemas.reduce(
+        (r, schema) => {
+          r.set(schema.$id, schema);
+          return r;
+        },
+        new Map()
+      );
+
       const types = prettier.format(
         schemas
-          .map((schema) => schemaToType(schemas, schema, schema))
+          .map((schema) => schemaToType(schemaMap, schema, schema))
           .join("\n"),
         { cursorOffset: 2, parser: "typescript" }
       );

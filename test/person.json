@@ -8,6 +8,9 @@
       "type": "string",
       "description": "The person's first name."
     },
+    "geography": {
+      "$ref": "#https://example.com/geographical-location.schema.json"
+    },
     "tuple": {
       "type": "array",
       "items": [{ "type": "number" }, { "type": "string" }]
