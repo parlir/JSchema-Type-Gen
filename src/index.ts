@@ -81,6 +81,12 @@ function generateTypeInfo(
   }
 }
 
+function generateDescription(schema: JSONSchema7) {
+  if (!schema.description) return "";
+  return `// ${schema.description}
+  `;
+}
+
 function generateProperties(
   schemas: Map<string, JSONSchema7>,
   rootSchema: JSONSchema7,
@@ -92,17 +98,13 @@ function generateProperties(
   );
   const properties = schema.properties ?? {};
   return Object.keys(properties)
-    .map(
-      (name) =>
-        `${name}${
-          !schema.required?.includes(name) ? "?" : ""
-        }: ${generateTypeInfo(
-          schemas,
-          rootSchema,
-          properties[name] as JSONSchema7
-        )};`
-    )
-    .join("");
+    .map((name) => {
+      const propertySchema = properties[name] as JSONSchema7;
+      return `${generateDescription(propertySchema)}${name}${
+        !schema.required?.includes(name) ? "?" : ""
+      }: ${generateTypeInfo(schemas, rootSchema, propertySchema)};`;
+    })
+    .join("\n");
 }
 
 const schemaToType = (
@@ -111,9 +113,12 @@ const schemaToType = (
   schema: JSONSchema7
 ): string => {
   const typeName = generateTypeName(schema);
+
   switch (schema.type) {
     case "object":
-      return `export interface ${typeName} ${generateTypeInfo(
+      return `${generateDescription(
+        schema
+      )}export interface ${typeName} ${generateTypeInfo(
         schemas,
         rootSchema,
         schema
@@ -124,7 +129,9 @@ const schemaToType = (
     case "boolean":
     case "null":
     case "array":
-      return `export type ${typeName} = ${generateTypeInfo(
+      return `${generateDescription(
+        schema
+      )}export type ${typeName} = ${generateTypeInfo(
         schemas,
         rootSchema,
         schema
