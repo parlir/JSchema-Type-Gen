@@ -63,7 +63,7 @@ node lib/index.js --schemas <schema paths> --output <output ts file>
 }
 ```
 
-### Generated TS types 
+### Generated TS type 
 ```ts
 export interface Person {
   firstName?: string;
