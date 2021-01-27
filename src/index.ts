@@ -1,6 +1,7 @@
 // JSON Schema code generation
-import prettier from "prettier";
+import path from "path";
 import fs from "fs";
+import prettier from "prettier";
 import { program } from "commander";
 import jsonpointer from "jsonpointer";
 import { JSONSchema7, JSONSchema7Definition } from "json-schema";
@@ -135,8 +136,23 @@ async function main() {
     .requiredOption("-s, --schemas [schemas...]", "Specify JSON Schemas")
     .requiredOption("-o, --output <path>", "Specify output file")
     .action(async (command, args) => {
-      console.log(command.output, command.schemas);
-      const schemas = command.schemas.map(
+      const schemaFilePaths: Array<string> = Array.from(
+        command.schemas.reduce((schemas: Set<string>, filePath: string) => {
+          if (fs.lstatSync(filePath).isDirectory()) {
+            fs.readdirSync(filePath)
+              .filter((v) => v.endsWith(".json"))
+              .forEach((subFilePath) =>
+                schemas.add(path.join(filePath, subFilePath))
+              );
+            return schemas;
+          } else {
+            schemas.add(filePath);
+            return schemas;
+          }
+        }, new Set())
+      );
+
+      const schemas = schemaFilePaths.map(
         (path) => JSON.parse(fs.readFileSync(path, "utf8")) as JSONSchema7
       );
 
